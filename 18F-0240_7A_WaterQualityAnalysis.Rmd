@@ -1,0 +1,124 @@
+---
+title: "18F-0240_7A_WaterQualityAnlysis"
+author: "18F-0240"
+date: "1/17/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+## Google Trend Analysis
+Github link: "https://github.com/HuzaifahZia/Water-Quality-Analysis.git"
+
+Installing Libraries
+```{r}
+library(ggplot2)
+library(ggthemes)
+library(scales)
+library(dplyr)
+library(tidyverse)
+library(tidyr)
+library(caret)
+library(RColorBrewer)
+```
+
+
+```{r}
+data<-read.csv("water_potability.csv")
+head(data)
+```
+
+```{r}
+data<-data[rowSums(is.na(data)) == 0,]
+```
+
+
+```{r}
+count<-table(data$Potability)
+barplot(count, main="Distribution of Unsafe and Safe Water",xlab="Potability",col=c("SteelBlue","orange"))
+```
+
+```{r}
+ggplot(data,aes(x=ph))+
+  geom_histogram(aes(fill=factor(Potability)),binwidth = 0.3,position ="identity")+
+  labs(fill="Potability",y="Count")
+```
+
+```{r}
+ggplot(data,aes(x=Hardness))+
+  geom_histogram(aes(fill=factor(Potability)),position ="identity",binwidth=5)+
+  labs(fill="Potability",y="Count")
+```
+
+```{r}
+ggplot(data,aes(x=Solids))+
+  geom_histogram(aes(fill=factor(Potability)),position ="identity")+
+  labs(fill="Potability",y="Count")
+```
+
+```{r}
+ggplot(data,aes(x=Chloramines))+
+  geom_histogram(aes(fill=factor(Potability)),position ="identity")+
+  labs(fill="Potability",y="Count")
+
+```
+
+```{r}
+ggplot(data,aes(x=Sulfate))+
+  geom_histogram(aes(fill=factor(Potability)),position ="identity")+
+  labs(fill="Potability",y="Count")
+```
+
+```{r}
+ggplot(data,aes(x=Conductivity))+
+  geom_histogram(aes(fill=factor(Potability)),position ="identity")+
+  labs(fill="Potability",y="Count")
+```
+
+```{r}
+ggplot(data,aes(x=Organic_carbon))+
+  geom_histogram(aes(fill=factor(Potability)),position ="identity")+
+  labs(fill="Potability",y="Count")
+```
+
+```{r}
+ggplot(data,aes(x=Trihalomethanes))+
+  geom_histogram(aes(fill=factor(Potability)),position ="identity")+
+  labs(fill="Potability",y="Count")
+```
+
+```{r}
+ggplot(data,aes(x=Turbidity))+
+  geom_histogram(aes(fill=factor(Potability)),position ="identity")+
+  labs(fill="Potability",y="Count")
+```
+
+```{r}
+correlation <- data %>% 
+  as.matrix %>%
+  cor %>%
+  as.data.frame %>%
+  rownames_to_column(var = 'var1') %>%
+  gather(var2, value, -var1)
+
+correlation[which(correlation$var2 == 'ph'),]
+```
+
+```{r}
+allmodels<-paste(names(getModelInfo()), collapse=',  ')
+allmodels
+modelLookup("rf")
+modelLookup("earth")
+model = train(Potability ~ ., data = data, method='rf')
+model
+plot(model)
+```
+
